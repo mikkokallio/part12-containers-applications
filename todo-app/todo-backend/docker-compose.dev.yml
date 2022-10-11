@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  server:                    # The name of the service, can be anything
+    image: todo-app       # Declares which image to use
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    ports:                # Declares the ports to publish
+      - 3001:3001
+    volumes:
+      - ./:/usr/src/app   # THIS COPIED from frontend!!!
+    environment: 
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://root:example@mongodb:27017/the_database
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: the_database
+    volumes: 
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo_data:/data/db
+  redis:
+    image: "redis:alpine"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./redis_data:/data
+  debug-helper:
+    image: busybox

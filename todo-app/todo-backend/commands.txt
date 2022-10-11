@@ -1,0 +1,2 @@
+# Test updating one todo
+curl -i -X PUT -d '{"text":"what what!"}' http://localhost:3000/todos/6342f7e27892d2b8d5321b4c
