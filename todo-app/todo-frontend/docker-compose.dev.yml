@@ -3,7 +3,7 @@ services:
     image: todoapp-front-dev
     build:
       context: . # The context will pick this directory as the "build context"
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     volumes:
       - ./:/usr/src/app
     ports:
