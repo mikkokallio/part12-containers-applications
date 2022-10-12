@@ -1,14 +1,59 @@
+version: '3.8'
+
 services:
+
   app:
     image: todoapp-front-dev
     build:
-      context: ./todo-frontend/ # The context will pick this directory as the "build context"
+      context: ./todo-frontend/
       dockerfile: dev.Dockerfile
-    #volumes:
-    #  - ./:/usr/src/app
-    ports:
-      - 3000:3000
+    volumes:
+      - ./todo-frontend/:/usr/src/app
+    #ports:
+    #  - 3000:3000 # <<- WORKS WITHOUT JUST TAKES TIME!
     container_name: todoapp-front-dev
+    environment:
+      - PORT=3000
+      - REACT_APP_BACKEND_URL=http://localhost:8080/api/
+  
+  #debug-helper:
+  #  image: busybox
+
+  server:                    # The name of the service, can be anything
+    image: todo-app       # Declares which image to use
+    build:
+      context: ./todo-backend/
+      dockerfile: dev.Dockerfile
+    #ports:                # Declares the ports to publish
+    #  - 3001:3001
+    volumes:
+      - ./todo-backend:/usr/src/app
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://root:example@mongodb:27017/the_database
+
+  mongodb:
+    image: mongo:latest
+    #ports:
+    #  - 3456:27017
+    #restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: the_database
+    volumes: 
+      - ./todo-backend/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./todo-backend/mongo_data:/data/db
+
+  redis:
+    image: "redis:alpine"
+    #ports:
+    #  - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./todo-backend/redis_data:/data
+
   nginx:
     image: nginx:1.20.1
     volumes:
@@ -18,7 +63,4 @@ services:
     container_name: reverse-proxy
     depends_on:
       - app
-  debug-helper:
-    image: busybox
-
-
+      - server
