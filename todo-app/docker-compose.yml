@@ -7,26 +7,17 @@ services:
     build:
       context: ./todo-frontend/
       dockerfile: dev.Dockerfile
-    #volumes:
-    #  - ./todo-frontend/:/usr/src/app
     container_name: todoapp-front-dev
     environment:
       - REACT_APP_BACKEND_URL=http://localhost:8080/api/
     depends_on:
       - server
 
-  #debug-helper:
-  #  image: busybox
-
   server:                    # The name of the service, can be anything
     image: todo-app       # Declares which image to use
     build:
       context: ./todo-backend/
-      dockerfile: dev.Dockerfile
-    #ports:                # Declares the ports to publish
-    #  - 3001:3001
-    volumes:
-      - ./todo-backend:/usr/src/app
+      dockerfile: Dockerfile
     environment:
       - PORT=3001
       - REDIS_URL=redis://redis:6379
